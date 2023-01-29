@@ -1,0 +1,122 @@
+[build-system]
+requires = ["setuptools>=61.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "flake8_get_chaining"
+authors = [{name = "Augustin Bouverot", email = "augustin.bouverot@gmail.com"}]
+license = {text = "MIT"}
+description = "A plugin for flake8 finding likely bugs when chaining dict.get calls"
+keywords = [
+    "flake8",
+    "get-chaining",
+    "bugs",
+    "pyflakes",
+    "pylint",
+    "linter",
+    "qa",
+]
+readme = "README.md"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Framework :: Flake8",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Software Development :: Quality Assurance",
+]
+requires-python = ">=3.7"
+dependencies = ["flake8 >= 3.0.0"]
+dynamic = ["version"]
+
+[project.urls]
+Homepage = "https://github.com/Sacrimento/flake8-get-chaining"
+"Change Log" = "https://github.com/Sacrimento/flake8-get-chaining#change-log"
+
+[project.entry-points]
+"flake8.extension" = {DGC100 = "get_chaining:GetChainingChecker"}
+
+[project.optional-dependencies]
+dev = [
+    "tox",
+    "pytest",
+    "coverage",
+    "pylint",
+    "isort",
+    "mypy",
+]
+
+[tool.setuptools]
+py-modules = ["get_chaining"]
+license-files = ["LICENSE"]
+include-package-data = false
+
+[tool.setuptools.dynamic]
+version = {attr = "get_chaining.__version__"}
+
+[tool.isort]
+force_sort_within_sections = true
+profile = "black"
+
+[tool.pylint.master]
+init-hook="import os, sys; sys.path.append(os.path.dirname('.'))"
+
+[tool.pylint.messages_control]
+disable = """
+    invalid-name,
+    missing-class-docstring,
+    missing-function-docstring,
+    missing-module-docstring,
+    too-few-public-methods,
+"""
+
+[tool.mypy]
+files = "get_chaining.py"
+
+ignore_missing_imports = false
+follow_imports = "normal"
+
+# Disallow dynamic typing
+disallow_any_generics = true
+disallow_subclassing_any = true
+
+# Untyped definitions and calls
+disallow_untyped_calls = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+
+# None and Optional handling
+no_implicit_optional = true
+strict_optional = true
+
+# Configuring warning
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_return_any = true
+warn_unreachable = true
+
+# Supressing errors
+ignore_errors = false
+
+# Miscellaneous strictness flags
+strict_equality = true
+
+# Configuring error messages
+show_error_context = true
+show_error_codes = true
+
+# Miscellaneous
+warn_unused_configs = true
