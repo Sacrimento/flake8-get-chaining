@@ -1,0 +1,59 @@
+# Uses https://github.com/ymyzk/tox-gh-actions
+name: ci
+
+on: [push, pull_request]
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+      
+      - name: Update pip and setuptools
+        run: |
+          python -m pip install --upgrade pip setuptools
+
+      - name: Install linters
+        run: |
+          python -m pip install pylint flake8 mypy black isort pytest
+
+      - name: Run linters
+        run: |
+          pylint get_chaining.py tests
+          flake8 get_chaining.py tests
+          black --check get_chaining.py tests
+          isort --check get_chaining.py tests
+          mypy
+
+  test:
+    name: Test python ${{ matrix.python-version }} on ${{matrix.os}}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11"]
+        os: [ubuntu-latest]
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Update pip and setuptools
+      run: |
+        python -m pip install --upgrade pip setuptools
+    - name: Install tox and tox-gh-actions
+      run: |
+        python -m pip install tox tox-gh-actions
+    - name: Run tox
+      run: |
+        tox
