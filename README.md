@@ -5,7 +5,9 @@
 A [flake8](https://github.com/PyCQA/flake8) plugin finding likely bugs when chaining dict.get calls
 
 [![CI](https://github.com/Sacrimento/flake8-get-chaining/actions/workflows/ci.yml/badge.svg)](https://github.com/Sacrimento/flake8-get-chaining/actions/workflows/ci.yml)
-[![code style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Code style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/flake8-get-chaining)](https://pypi.org/project/flake8-get-chaining/)
+[![PyPI - Version](https://img.shields.io/pypi/v/flake8-get-chaining)](https://pypi.org/project/flake8-get-chaining/)
 
 </div>
 
