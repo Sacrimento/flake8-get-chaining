@@ -1,10 +1,21 @@
 import ast
+from enum import Enum, unique
 import sys
 from typing import Any, Generator, List, Optional, Tuple, Type
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
-ERR_MSG = "dict.get chaining might crash"
+
+@unique
+class ErrorType(Enum):
+    DGC1001 = "DGC1001"
+    DGC1002 = "DGC1002"
+
+
+ERR_MSGS = {
+    ErrorType.DGC1001: "missing default argument when chaining dict.get()",
+    ErrorType.DGC1002: "invalid default argument when chaining dict.get()",
+}
 
 
 def call_position(call: ast.Call) -> Tuple[int, Optional[int]]:
@@ -24,13 +35,13 @@ class GetChainingChecker:
         visitor = GetChainingVisitor()
         visitor.visit(self._tree)
 
-        for lineno, col in visitor.issues:
-            yield lineno, col, f"DGC1001 {ERR_MSG}", type(self)
+        for err, lineno, col in visitor.issues:
+            yield lineno, col, f"{err.value} {ERR_MSGS[err]}", type(self)
 
 
 class GetChainingVisitor(ast.NodeVisitor):
     def __init__(self) -> None:
-        self.issues: List[Tuple[int, Optional[int]]] = []
+        self.issues: List[Tuple[ErrorType, int, Optional[int]]] = []
 
     def visit_Call(self, node: ast.Call) -> Any:
 
@@ -47,19 +58,21 @@ class GetChainingVisitor(ast.NodeVisitor):
 
         if len(get_call.args) > 1:
             arg = get_call.args[1]
-            if isinstance(arg, ast.Dict) or (
+            if not isinstance(arg, ast.Dict) and not (
                 isinstance(arg, ast.Name) and arg.id.isidentifier()
             ):
-                return self.generic_visit(node)
-            self.issues.append(call_position(get_call))
+                self.issues.append((ErrorType.DGC1002, *call_position(get_call)))
         elif get_call.keywords:
             for kw in get_call.keywords:
                 if kw.arg == "default":
-                    if isinstance(kw.value, ast.Dict):
-                        return self.generic_visit(node)
-                    if isinstance(kw.value, ast.Name) and kw.value.id.isidentifier():
-                        return self.generic_visit(node)
-            self.issues.append(call_position(get_call))
+                    if not isinstance(kw.value, ast.Dict) and not (
+                        isinstance(kw.value, ast.Name) and kw.value.id.isidentifier()
+                    ):
+                        self.issues.append(
+                            (ErrorType.DGC1002, *call_position(get_call))
+                        )
+                    return self.generic_visit(node)
+            self.issues.append((ErrorType.DGC1001, *call_position(get_call)))
         else:
-            self.issues.append(call_position(get_call))
+            self.issues.append((ErrorType.DGC1001, *call_position(get_call)))
         return self.generic_visit(node)
